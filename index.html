@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Tracker</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+}
+
+.app {
+    max-width: 420px;
+    margin: auto;
+    background: white;
+    min-height: 100vh;
+}
+
+header {
+    background: #2c7be5;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.balance {
+    font-size: 24px;
+    margin-top: 10px;
+}
+
+.form {
+    padding: 15px;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    font-size: 16px;
+}
+
+button {
+    background: #2c7be5;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1a5fc4;
+}
+
+.transactions {
+    padding: 15px;
+}
+
+.transaction {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.income {
+    color: green;
+}
+
+.expense {
+    color: red;
+}
+
+.summary {
+    display: flex;
+    justify-content: space-around;
+    padding: 15px;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.box {
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+    <h2>💶 Budget Tracker</h2>
+    <div class="balance" id="balance">€0.00</div>
+</header>
+
+<div class="summary">
+    <div class="box">
+        <h4>Income</h4>
+        <p id="income">€0.00</p>
+    </div>
+    <div class="box">
+        <h4>Expenses</h4>
+        <p id="expense">€0.00</p>
+    </div>
+</div>
+
+<div class="form">
+    <h3>Add Transaction</h3>
+
+    <input type="text" id="text" placeholder="Description">
+
+    <input type="number" id="amount" placeholder="Amount (€)">
+
+    <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+    </select>
+
+    <select id="category">
+        <option>Food</option>
+        <option>Rent</option>
+        <option>Transport</option>
+        <option>Bills</option>
+        <option>Shopping</option>
+        <option>Entertainment</option>
+        <option>Other</option>
+    </select>
+
+    <button onclick="addTransaction()">Add</button>
+</div>
+
+<div class="transactions">
+    <h3>History</h3>
+    <div id="list"></div>
+</div>
+
+</div>
+
+<script>
+let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+
+function addTransaction() {
+    const text = document.getElementById("text").value;
+    const amount = document.getElementById("amount").value;
+    const type = document.getElementById("type").value;
+    const category = document.getElementById("category").value;
+
+    if (text === "" || amount === "") {
+        alert("Please fill all fields");
+        return;
+    }
+
+    const transaction = {
+        id: Date.now(),
+        text,
+        amount: +amount,
+        type,
+        category
+    };
+
+    transactions.push(transaction);
+
+    saveData();
+    updateUI();
+
+    document.getElementById("text").value = "";
+    document.getElementById("amount").value = "";
+}
+
+function updateUI() {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    let income = 0;
+    let expense = 0;
+
+    transactions.forEach(t => {
+
+        if (t.type === "income") {
+            income += t.amount;
+        } else {
+            expense += t.amount;
+        }
+
+        const div = document.createElement("div");
+        div.classList.add("transaction", t.type);
+
+        div.innerHTML = `
+            <span>${t.text} (${t.category})</span>
+            <span>€${t.amount.toFixed(2)}</span>
+        `;
+
+        list.appendChild(div);
+    });
+
+    const balance = income - expense;
+
+    document.getElementById("income").innerText = "€" + income.toFixed(2);
+    document.getElementById("expense").innerText = "€" + expense.toFixed(2);
+    document.getElementById("balance").innerText = "€" + balance.toFixed(2);
+}
+
+function saveData() {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+}
+
+updateUI();
+</script>
+
+</body>
+</html>
