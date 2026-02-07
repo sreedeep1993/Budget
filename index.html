@@ -5,95 +5,48 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Budget Tracker</title>
 
+<!-- Favicon for browser tab -->
+<link rel="icon" type="image/png" href="icon-192.png">
+
+<!-- Apple / iOS Home Screen Icon -->
+<link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+
+<!-- Manifest for Android / Chrome / PWA -->
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#2c7be5">
+
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f2f2f2;
 }
-
 .app {
     max-width: 420px;
     margin: auto;
     background: white;
     min-height: 100vh;
 }
-
 header {
     background: #2c7be5;
     color: white;
     padding: 20px;
     text-align: center;
 }
-
-.balance {
-    font-size: 24px;
-    margin-top: 10px;
-}
-
-.form {
-    padding: 15px;
-}
-
-input, select, button {
-    width: 100%;
-    padding: 10px;
-    margin: 6px 0;
-    font-size: 16px;
-}
-
-button {
-    background: #2c7be5;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1a5fc4;
-}
-
-.transactions {
-    padding: 15px;
-}
-
-.transaction {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-.income {
-    color: green;
-}
-
-.expense {
-    color: red;
-}
-
-.delete-btn {
-    background: red;
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    font-size: 12px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.summary {
-    display: flex;
-    justify-content: space-around;
-    padding: 15px;
-    background: #f9f9f9;
-    border-top: 1px solid #ddd;
-}
-
-.box {
-    text-align: center;
-}
+.balance { font-size: 24px; margin-top: 10px; }
+.form { padding: 15px; }
+input, select, button { width: 100%; padding: 10px; margin: 6px 0; font-size: 16px; }
+button { background: #2c7be5; color: white; border: none; cursor: pointer; }
+button:hover { background: #1a5fc4; }
+.transactions { padding: 15px; }
+.transaction { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; }
+.income { color: green; }
+.expense { color: red; }
+.delete-btn { background: red; color: white; border: none; padding: 4px 8px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+.summary { display: flex; justify-content: space-around; padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; }
+.box { text-align: center; }
+.tag { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
 </style>
 </head>
 
@@ -119,18 +72,13 @@ button:hover {
 
 <div class="form">
     <h3>Add Transaction</h3>
-
     <input type="text" id="text" placeholder="Description">
-
     <input type="number" id="amount" placeholder="Amount (€)">
-
     <select id="type" onchange="updateCategories()">
         <option value="income">Income</option>
         <option value="expense">Expense</option>
     </select>
-
     <select id="category"></select>
-
     <button onclick="addTransaction()">Add</button>
 </div>
 
@@ -145,36 +93,24 @@ button:hover {
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
 // Income categories
-const incomeCategories = [
-    "Salary",
-    "Bonus",
-    "Freelance",
-    "Business",
-    "Gift",
-    "Other"
-];
+const incomeCategories = ["Salary", "Refunds", "Interests", "Other"];
 
 // Expense categories
-const expenseCategories = [
-    "Food",
-    "Rent",
-    "Transport",
-    "Bills",
-    "Shopping",
-    "Entertainment",
-    "Other"
-];
+const expenseCategories = ["Rent","Transport","Grocery","Shopping","Parent Support","Financial Investments","Utilities","Subscriptions","Internet"];
+
+// Category short codes
+const categoryShorts = {
+    "Salary": "SAL", "Refunds": "REF", "Interests": "INT", "Other": "OTH",
+    "Rent": "RENT","Transport": "TRNS","Grocery": "GROC","Shopping": "SHOP",
+    "Parent Support": "PRNT","Financial Investments": "INV","Utilities": "UTIL",
+    "Subscriptions": "SUB","Internet": "NET"
+};
 
 function updateCategories() {
     const type = document.getElementById("type").value;
     const categorySelect = document.getElementById("category");
-
     categorySelect.innerHTML = "";
-
-    const categories = type === "income"
-        ? incomeCategories
-        : expenseCategories;
-
+    const categories = type === "income" ? incomeCategories : expenseCategories;
     categories.forEach(cat => {
         const option = document.createElement("option");
         option.value = cat;
@@ -189,31 +125,18 @@ function addTransaction() {
     const type = document.getElementById("type").value;
     const category = document.getElementById("category").value;
 
-    if (text === "" || amount === "") {
-        alert("Please fill all fields");
-        return;
-    }
+    if (text === "" || amount === "") { alert("Please fill all fields"); return; }
 
-    const transaction = {
-        id: Date.now(),
-        text,
-        amount: +amount,
-        type,
-        category
-    };
-
+    const transaction = { id: Date.now(), text, amount: +amount, type, category };
     transactions.push(transaction);
-
     saveData();
     updateUI();
-
     document.getElementById("text").value = "";
     document.getElementById("amount").value = "";
 }
 
 function deleteTransaction(id) {
     transactions = transactions.filter(t => t.id !== id);
-
     saveData();
     updateUI();
 }
@@ -221,47 +144,33 @@ function deleteTransaction(id) {
 function updateUI() {
     const list = document.getElementById("list");
     list.innerHTML = "";
-
-    let income = 0;
-    let expense = 0;
+    let income = 0, expense = 0;
 
     transactions.forEach(t => {
-
-        if (t.type === "income") {
-            income += t.amount;
-        } else {
-            expense += t.amount;
-        }
-
+        if(t.type==="income") income+=t.amount; else expense+=t.amount;
+        const short = categoryShorts[t.category] || "OTH";
         const div = document.createElement("div");
         div.classList.add("transaction", t.type);
-
         div.innerHTML = `
             <div>
                 <strong>${t.text}</strong><br>
-                <small>${t.category}</small>
+                <span class="tag">${short}</span>
             </div>
-
             <div>
                 €${t.amount.toFixed(2)}
-                <button class="delete-btn"
-                    onclick="deleteTransaction(${t.id})">✖</button>
+                <button class="delete-btn" onclick="deleteTransaction(${t.id})">✖</button>
             </div>
         `;
-
         list.appendChild(div);
     });
 
     const balance = income - expense;
-
-    document.getElementById("income").innerText = "€" + income.toFixed(2);
-    document.getElementById("expense").innerText = "€" + expense.toFixed(2);
-    document.getElementById("balance").innerText = "€" + balance.toFixed(2);
+    document.getElementById("income").innerText = "€"+income.toFixed(2);
+    document.getElementById("expense").innerText = "€"+expense.toFixed(2);
+    document.getElementById("balance").innerText = "€"+balance.toFixed(2);
 }
 
-function saveData() {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-}
+function saveData() { localStorage.setItem("transactions", JSON.stringify(transactions)); }
 
 // Initialize
 updateCategories();
