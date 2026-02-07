@@ -5,122 +5,94 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Budget Tracker</title>
 
-<!-- Favicon -->
+<!-- Favicon and PWA -->
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4B6CB7">
 
-<style>
-/* Reset and base */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f5f6fa; color: #333; }
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-/* App container */
-.app {
-  max-width: 480px;
-  margin: 0 auto;
+<style>
+/* Reset */
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg,#4B6CB7,#182848);
+  color: #fff;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px 0;
 }
+.app { width: 100%; max-width: 480px; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
 
-/* Header */
+/* Glass Header */
 header {
-  background: linear-gradient(90deg,#4B6CB7,#182848);
-  color: white;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  color: #fff;
   padding: 25px 20px;
   text-align: center;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  border-radius: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 header h2 { font-weight: 600; font-size: 24px; }
 .balance { font-size: 32px; font-weight: 700; margin-top: 5px; }
 
 /* Summary Boxes */
-.summary {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
-}
+.summary { display:flex; justify-content:space-between; margin-bottom:15px; }
 .box {
-  flex: 1;
-  text-align: center;
-  margin: 0 5px;
-  background: white;
-  padding: 15px 0;
-  border-radius: 15px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  flex:1; margin:0 5px; background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+  text-align:center; padding:15px 0; border-radius:20px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 }
-.box h4 { font-weight: 500; margin-bottom: 5px; }
-.box p { font-weight: 600; font-size: 18px; color: #333; }
+.box h4 { font-weight:500; margin-bottom:5px; color:#f0f0f0; }
+.box p { font-weight:600; font-size:18px; color:#fff; }
 
 /* Form */
 .form {
-  background: white;
-  padding: 20px;
-  margin: 15px;
-  border-radius: 15px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
-}
-.form h3 { margin-bottom: 15px; font-weight: 500; color: #555; }
-input, select, button {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  font-size: 16px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  outline: none;
-}
-input:focus, select:focus { border-color: #4B6CB7; }
-button {
-  background: #4B6CB7;
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.3s;
-}
-button:hover { background: #182848; }
-
-/* Transactions */
-.transactions {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
   padding: 20px;
   margin: 0 15px 15px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 }
-.transactions h3 { margin-bottom: 15px; font-weight: 500; color: #555; }
+.form h3 { margin-bottom:15px; font-weight:500; color:#f0f0f0; }
+input, select, button {
+  width:100%; padding:12px; margin:8px 0; font-size:16px; border-radius:15px; border:none; outline:none;
+  background: rgba(255,255,255,0.2); color:#fff; backdrop-filter: blur(5px);
+}
+input::placeholder, select { color:#e0e0e0; }
+button {
+  background: rgba(255,255,255,0.2); color:#fff; font-weight:600; cursor:pointer; transition:0.3s;
+}
+button:hover { background: rgba(255,255,255,0.35); }
+
+/* Transactions */
+.transactions { padding:0 15px; margin-bottom:15px; }
+.transactions h3 { margin-bottom:15px; font-weight:500; color:#f0f0f0; }
 .transaction {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 12px 15px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  display:flex; justify-content:space-between; align-items:center;
+  background: rgba(255,255,255,0.1); backdrop-filter: blur(15px);
+  padding:12px 15px; margin-bottom:10px; border-radius:20px; box-shadow:0 4px 20px rgba(0,0,0,0.15);
 }
-.transaction .tag {
-  background: #eee;
-  padding: 3px 8px;
-  border-radius: 8px;
-  font-size: 12px;
-  margin-top: 4px;
-  display: inline-block;
+.transaction .tag { background: rgba(255,255,255,0.2); padding:3px 8px; border-radius:12px; font-size:12px; margin-top:4px; display:inline-block; }
+.income { border-left:4px solid #28a745; }
+.expense { border-left:4px solid #dc3545; }
+.delete-btn { background: rgba(255,75,92,0.5); color:#fff; border:none; padding:5px 10px; border-radius:12px; cursor:pointer; font-size:12px; transition:0.3s; }
+.delete-btn:hover { background: rgba(255,75,92,0.8); }
+
+/* Charts */
+.charts {
+  margin:0 15px 20px; padding:20px;
+  background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+  border-radius:20px; box-shadow:0 8px 32px rgba(0,0,0,0.15);
 }
-.income { border-left: 4px solid #28a745; }
-.expense { border-left: 4px solid #dc3545; }
-.delete-btn {
-  background: #ff4b5c;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: background 0.3s;
-}
-.delete-btn:hover { background: #c0392b; }
+canvas { width:100% !important; max-height:300px; margin-top:10px; }
 </style>
 </head>
 
@@ -133,14 +105,8 @@ button:hover { background: #182848; }
 </header>
 
 <div class="summary">
-  <div class="box">
-    <h4>Income</h4>
-    <p id="income">€0.00</p>
-  </div>
-  <div class="box">
-    <h4>Expenses</h4>
-    <p id="expense">€0.00</p>
-  </div>
+  <div class="box"><h4>Income</h4><p id="income">€0.00</p></div>
+  <div class="box"><h4>Expenses</h4><p id="expense">€0.00</p></div>
 </div>
 
 <div class="form">
@@ -160,66 +126,58 @@ button:hover { background: #182848; }
   <div id="list"></div>
 </div>
 
+<div class="charts">
+  <h3>Monthly Overview</h3>
+  <canvas id="incomeExpenseChart"></canvas>
+  <canvas id="categoryChart"></canvas>
+</div>
+
 </div>
 
 <script>
 let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
-
-const incomeCategories = ["Salary", "Refunds", "Interests", "Other"];
+const incomeCategories = ["Salary","Refunds","Interests","Other"];
 const expenseCategories = ["Rent","Transport","Grocery","Shopping","Parent Support","Financial Investments","Utilities","Subscriptions","Internet"];
 const categoryShorts = {
-    "Salary":"SAL","Refunds":"REF","Interests":"INT","Other":"OTH",
-    "Rent":"RENT","Transport":"TRNS","Grocery":"GROC","Shopping":"SHOP",
-    "Parent Support":"PRNT","Financial Investments":"INV","Utilities":"UTIL",
-    "Subscriptions":"SUB","Internet":"NET"
+"Salary":"SAL","Refunds":"REF","Interests":"INT","Other":"OTH",
+"Rent":"RENT","Transport":"TRNS","Grocery":"GROC","Shopping":"SHOP",
+"Parent Support":"PRNT","Financial Investments":"INV","Utilities":"UTIL",
+"Subscriptions":"SUB","Internet":"NET"
 };
 
 function updateCategories(){
-    const type = document.getElementById("type").value;
-    const select = document.getElementById("category");
-    select.innerHTML = "";
-    const cats = type==="income"?incomeCategories:expenseCategories;
-    cats.forEach(c=>{
-        const opt = document.createElement("option");
-        opt.value = c; opt.textContent = c;
-        select.appendChild(opt);
-    });
+    const type=document.getElementById("type").value;
+    const select=document.getElementById("category");
+    select.innerHTML="";
+    const cats=type==="income"?incomeCategories:expenseCategories;
+    cats.forEach(c=>{const opt=document.createElement("option"); opt.value=c; opt.textContent=c; select.appendChild(opt);});
 }
 
 function addTransaction(){
-    const text = document.getElementById("text").value;
-    const amount = document.getElementById("amount").value;
-    const type = document.getElementById("type").value;
-    const category = document.getElementById("category").value;
-    if(!text||!amount){ alert("Please fill all fields"); return;}
+    const text=document.getElementById("text").value;
+    const amount=document.getElementById("amount").value;
+    const type=document.getElementById("type").value;
+    const category=document.getElementById("category").value;
+    if(!text||!amount){alert("Please fill all fields"); return;}
     transactions.push({id:Date.now(),text,amount:+amount,type,category});
-    saveData(); updateUI();
+    saveData(); updateUI(); renderCharts();
     document.getElementById("text").value=""; document.getElementById("amount").value="";
 }
 
 function deleteTransaction(id){
     transactions = transactions.filter(t=>t.id!==id);
-    saveData(); updateUI();
+    saveData(); updateUI(); renderCharts();
 }
 
 function updateUI(){
-    const list=document.getElementById("list");
-    list.innerHTML="";
+    const list=document.getElementById("list"); list.innerHTML="";
     let income=0,expense=0;
     transactions.forEach(t=>{
         if(t.type==="income") income+=t.amount; else expense+=t.amount;
         const short=categoryShorts[t.category]||"OTH";
-        const div=document.createElement("div");
-        div.classList.add("transaction",t.type);
-        div.innerHTML=`
-            <div>
-                <strong>${t.text}</strong><br>
-                <span class="tag">${short}</span>
-            </div>
-            <div>
-                €${t.amount.toFixed(2)}
-                <button class="delete-btn" onclick="deleteTransaction(${t.id})">✖</button>
-            </div>`;
+        const div=document.createElement("div"); div.classList.add("transaction",t.type);
+        div.innerHTML=`<div><strong>${t.text}</strong><br><span class="tag">${short}</span></div>
+        <div>€${t.amount.toFixed(2)}<button class="delete-btn" onclick="deleteTransaction(${t.id})">✖</button></div>`;
         list.appendChild(div);
     });
     const balance=income-expense;
@@ -228,9 +186,40 @@ function updateUI(){
     document.getElementById("balance").innerText="€"+balance.toFixed(2);
 }
 
-function saveData(){ localStorage.setItem("transactions",JSON.stringify(transactions)); }
+function saveData(){localStorage.setItem("transactions",JSON.stringify(transactions));}
 
-updateCategories(); updateUI();
+// Charts
+let incomeExpenseChart, categoryChart;
+function renderCharts(){
+    // Prepare data
+    const categoryTotals = {}; 
+    const monthlyTotals = {}; 
+    transactions.forEach(t=>{
+        if(t.type==="expense"){categoryTotals[t.category]=(categoryTotals[t.category]||0)+t.amount;}
+        const date=new Date(t.id);
+        const month=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
+        if(!monthlyTotals[month]) monthlyTotals[month]={income:0,expense:0};
+        if(t.type==="income") monthlyTotals[month].income+=t.amount;
+        else monthlyTotals[month].expense+=t.amount;
+    });
+
+    const months=Object.keys(monthlyTotals).sort();
+    const incomes=months.map(m=>monthlyTotals[m].income);
+    const expenses=months.map(m=>monthlyTotals[m].expense);
+
+    const ctx1=document.getElementById('incomeExpenseChart').getContext('2d');
+    if(incomeExpenseChart) incomeExpenseChart.destroy();
+    incomeExpenseChart=new Chart(ctx1,{type:'bar',data:{labels:months,datasets:[{label:'Income',data:incomes,backgroundColor:'#28a745'},{label:'Expenses',data:expenses,backgroundColor:'#dc3545'}]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{beginAtZero:true}}}});
+
+    const catLabels=Object.keys(categoryTotals);
+    const catData=catLabels.map(c=>categoryTotals[c]);
+    const ctx2=document.getElementById('categoryChart').getContext('2d');
+    if(categoryChart) categoryChart.destroy();
+    categoryChart=new Chart(ctx2,{type:'doughnut',data:{labels:catLabels,datasets:[{data:catData,backgroundColor:['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40','#00CED1','#FF69B4','#7FFF00','#FF4500']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+}
+
+// Initialize
+updateCategories(); updateUI(); renderCharts();
 </script>
 </body>
 </html>
